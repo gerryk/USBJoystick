@@ -7,19 +7,18 @@
    Wiring from Handle to SPI as follows
    Brown:  +5v    
    Green:  GND
-   Orange: SCLK (pin1)
-   Red:    SS (pin0)
-   Yellow: MISO (pin3)
+   Orange: SCLK (pin13)
+   Red:    SS (pin10)
+   Yellow: MISO (pin12)
 */
 
 #include <SPI.h>
-#include <serial.h>
-
-const int slaveSelectPin = 0;
+const int ss = 10;
 
 unsigned int buttonInputs1;   // data read from SPI
 unsigned int buttonInputs2;
 unsigned int buttonInputs3;
+unsigned int pitch, roll;
 
 #define PINKY  !(buttonInputs1 & 0x80)    /* Pinky Switch */
 #define TG1    !(buttonInputs1 & 0x40)    /* Trigger 1 */
@@ -51,7 +50,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("USB Joystick analyser");
   // set the slaveSelectPin as an output:
-  pinMode (slaveSelectPin, OUTPUT);
+  pinMode (ss, OUTPUT);
   // start the SPI library:
   SPI.begin();
   // configure the joystick to manual send mode.  This gives precise
@@ -64,7 +63,7 @@ void setup() {
 // loop() runs for as long as power is applied
 void loop() {
   // take the SS pin low to select the chip
-  digitalWrite(slaveSelectPin,LOW);
+  digitalWrite(ss,LOW);
   // send a value of 0 to read the SPI bytes
   buttonInputs1 = SPI.transfer(0x00);
   buttonInputs2 = SPI.transfer(0x00);
@@ -73,9 +72,11 @@ void loop() {
   pitch = analogRead(0);
   roll = analogRead(1);
   // throttle = analogRead(3);
-
+  Serial.println(buttonInputs1,BIN);
+  Serial.println(buttonInputs2,BIN);
+  Serial.println(buttonInputs3,BIN);
   // take the SS pin high to de-select the chip:
-  digitalWrite(slaveSelectPin,HIGH); 
+  digitalWrite(ss,HIGH); 
   if(TG1) Serial.println("Trigger 1");
   if(TG2) Serial.println("Trigger 2");
   if(PINKY) Serial.println("Pinky");
@@ -96,12 +97,12 @@ void loop() {
   if(H4D) Serial.println("Hat 4 Down");
   if(H4L) Serial.println("Hat 4 Left");
   if(H4R) Serial.println("Hat 4 Right");
-
+/*
   Serial.print("Pitch ");
   Serial.print(pitch);
   Serial.print(" Roll ");
   Serial.println(roll);
-
+*/
   // Determine Joystick Hat Position
   int angle = -1;
 
@@ -126,8 +127,8 @@ void loop() {
   } else if (H1L) {
     angle = 270;
   }
-  Serial.print("Hat ");
-  Serial.println(angle);
+ /* Serial.print("Hat ");
+  Serial.println(angle); */
   Joystick.hat(angle);
   
   // Because setup configured the Joystick manual send,
