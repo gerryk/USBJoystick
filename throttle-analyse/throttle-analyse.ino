@@ -3,7 +3,7 @@
    You must select Joystick from the "Tools > USB Type" menu
 
    Buttons are muxed into rows and columns
-   SEL1, 2, 3 (columns) on Pins 17, 18, 19
+   SEL1, 2, 3 (columns) on Pins 17, 18, 19 - these need pull-downs
    Rows on pins 1, 2, 3, 4, 5, 6, 7, 8
    
 */
