@@ -33,7 +33,8 @@ void setup() {
 void loop() { 
   digitalWrite(col[0], 0);
   digitalWrite(col[1], 1);       
-  digitalWrite(col[2], 1);      
+  digitalWrite(col[2], 1);  
+  delay(10);  
    for (int y = 0; y < 8; y++) {
      if (digitalRead(row[y])==0)  {
         Serial.println(y+1);
@@ -43,6 +44,7 @@ void loop() {
   digitalWrite(col[0], 1);      
   digitalWrite(col[1], 0);       
   digitalWrite(col[2], 1);      
+  delay(10);
    for (int y = 0; y < 8; y++) {
      if (digitalRead(row[y])==0)  {
         Serial.println(y+9);
@@ -52,6 +54,7 @@ void loop() {
   digitalWrite(col[0], 1);      
   digitalWrite(col[1], 1);       
   digitalWrite(col[2], 0);      
+    delay(10);
    for (int y = 0; y < 8; y++) {
      if (digitalRead(row[y])==0)  {
         Serial.println(y+17);
