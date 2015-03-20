@@ -131,11 +131,11 @@ void loop() {
      if (digitalRead(row[y])==0 && y > 3)  {
        buttonstate[16+y]=0;
        if (buttonstate[16+y] != buttonprevstate[16+y])
-         Joystick.button(30+y,1);
+         Joystick.button(25+y,1);
      } else  {
        buttonstate[16+y]=1;
        if (buttonstate[16+y] != buttonprevstate[16+y])
-         Joystick.button(30+y,0);
+         Joystick.button(25+y,0);
      }
      buttonprevstate[16+y] = buttonstate[16+y];
   }
