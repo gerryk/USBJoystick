@@ -35,7 +35,7 @@ void loop() {
   digitalWrite(col[1], 1);       
   digitalWrite(col[2], 1);  
   delay(10);  
-   for (int y = 0; y < 8; y++) {
+  for (int y = 0; y < 4; y++) {    // only 4 buttons on this column
      if (digitalRead(row[y])==0)  {
         Serial.println(y+1);
       }

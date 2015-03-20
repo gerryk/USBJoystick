@@ -3,8 +3,9 @@
    You must select Joystick from the "Tools > USB Type" menu
 
    Throttle Buttons are muxed into rows and columns
-   SEL1, 2, 3 (columns) on Pins 17, 18, 19 - these need pull-downs
-   Rows on pins 1, 2, 3, 4, 5, 6, 7, 8 
+   SEL1, 2, 3 (columns) on Pins 17, 18, 19 
+   Rows on pins 0, 1, 2, 3, 4, 5, 6, 7 - all one register
+   Buttons read LOW on activation, so initial state is HIGH
 
    Joystick Buttons are muxed into shift registers, use the SPI protocol to read them
    F22 Shift-reg are 3 x HCF4021BE
@@ -31,10 +32,13 @@ unsigned int buttonInputs3;
 unsigned int pitch, roll, throttle1, throttle2;
 
 // 2-dimensional array of row pin numbers:
-const int row[8] = { 1,2,3,4,5,6,7,8 };
+const int row[8] = { 0,1,2,3,4,5,6,7 };
 
 // 2-dimensional array of column pin numbers:
 const int col[3] = { 18,19,20 };
+
+int buttonstate[24];
+int buttonprevstate[24];
 
 /*
 const int buttonlookup[8][3] = { {19,20,21,22,23,24,25,26},
@@ -68,37 +72,74 @@ const int buttonlookup[8][3] = { {19,20,21,22,23,24,25,26},
 #define H2L  !(buttonInputs3 & 0x01)
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println("USB Joystick analyser");
-  delay(1000);
   pinMode (ss, OUTPUT);
   SPI.begin();
+  for (int x = 0; x < 24; x++)  {
+    buttonstate[x] = 1;
+    buttonprevstate[x] = 1;
+  }
   for (int x = 0; x < 3; x++) {
-    pinMode(col[x], INPUT);
+    pinMode(col[x], OUTPUT);
   } 
   for (int x = 0; x < 8; x++) {
-    pinMode(row[x], OUTPUT);  
+    pinMode(row[x], INPUT_PULLUP);  
   }
   Joystick.useManualSend(true);
 }
 
 
 void loop() {
-  for (int x = 0; x < 3; x++) {
-    for (int y = 0; y < 8; y++) {
-     Serial.print("Button ");
-     Serial.print(x);
-     Serial.print("-");
-     Serial.println(y);
-     digitalWrite(row[y], HIGH);      
-     delay(30);
-     if (digitalRead(col[x]))  {
-       Joystick.button(18+((8*y)+x),);
-       
-}
-     digitalWrite(row[y], LOW);      
-    }
+   digitalWrite(col[0], 0);
+   digitalWrite(col[1], 1);       
+   digitalWrite(col[2], 1);  
+   delay(10);  
+   for (int y = 0; y < 4; y++) {
+     if (digitalRead(row[y])==0)  {
+       buttonstate[y]=0;
+       if (buttonstate[y] != buttonprevstate[y])
+         Joystick.button(19+y,1);
+     } else  {
+       buttonstate[y]=1;
+       if (buttonstate[y] != buttonprevstate[y])
+         Joystick.button(19+y,0);
+     }
+     buttonprevstate[y] = buttonstate[y];
+   }
+  
+   digitalWrite(col[0], 1);      
+   digitalWrite(col[1], 0);       
+   digitalWrite(col[2], 1);      
+   delay(10);
+   for (int y = 0; y < 8; y++) {
+     if (digitalRead(row[y])==0)  {
+       buttonstate[8+y]=0;
+       if (buttonstate[8+y] != buttonprevstate[8+y])
+         Joystick.button(23+y,1);
+     } else  {
+       buttonstate[8+y]=1;
+       if (buttonstate[8+y] != buttonprevstate[8+y])
+         Joystick.button(23+y,0);
+     }
+     buttonprevstate[8+y] = buttonstate[8+y];
+   }
+
+   digitalWrite(col[0], 1);      
+   digitalWrite(col[1], 1);       
+   digitalWrite(col[2], 0);      
+   delay(10);
+   for (int y = 0; y < 8; y++) {
+     if (digitalRead(row[y])==0 && y > 3)  {
+       buttonstate[16+y]=0;
+       if (buttonstate[16+y] != buttonprevstate[16+y])
+         Joystick.button(30+y,1);
+     } else  {
+       buttonstate[16+y]=1;
+       if (buttonstate[16+y] != buttonprevstate[16+y])
+         Joystick.button(30+y,0);
+     }
+     buttonprevstate[16+y] = buttonstate[16+y];
   }
+
   digitalWrite(ss,LOW);
   buttonInputs1 = SPI.transfer(0x00);
   buttonInputs2 = SPI.transfer(0x00);
